@@ -22,30 +22,12 @@ Web Engineering D
 - ✅ Form validation
 - ✅ Loading and error states
 
-## 🗃️ Firestore Schema
-
-Collection: `profiles`
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Full name |
-| `age` | number | Age in years |
-| `gender` | string | Gender |
-| `university` | string | University name |
-| `budget` | number | Monthly budget in PKR |
-| `preferredArea` | string | Preferred neighborhood |
-| `lifestyle` | string | Quiet & Studious / Balanced / Social |
-| `bio` | string | Short bio |
-| `contactEmail` | string | Email address |
-| `imageUrl` | string | Optional photo URL |
-| `createdAt` | timestamp | Auto-generated |
-| `updatedAt` | timestamp | Updated on edit |
 
 ## 🚀 Run Locally
 
 ```bash
 # Clone the repo
-git clone https://github.com/seodaisies/WebAssignment03.git
+git clone https://github.com/seodaisies/Web-Engineering-Assignment-03.git
 cd roomsync-profiles
 
 # Install dependencies
