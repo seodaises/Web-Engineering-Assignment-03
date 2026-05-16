@@ -22,6 +22,22 @@ Web Engineering D
 - ✅ Form validation
 - ✅ Loading and error states
 
+## 🔐 Authentication (Lab 12)
+
+Full Firebase Authentication integration on top of the CRUD app:
+
+- ✅ Email/Password signup and login
+- ✅ Google sign-in (OAuth)
+- ✅ Password reset (forgot password + logged-in reset)
+- ✅ Update display name
+- ✅ Delete account
+- ✅ Protected routes
+- ✅ Ownership-based access control:
+  - Anyone can browse profiles (Option A: open browse)
+  - Only authenticated users can create profiles
+  - Only profile owners can edit or delete their own profile
+- ✅ Enforced via both UI checks AND Firestore security rules
+
 
 ## 🚀 Run Locally
 
