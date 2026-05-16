@@ -30,6 +30,8 @@ const Navbar = () => {
           <li><NavLink to="/" end className={linkClass}>Home</NavLink></li>
           <li><NavLink to="/all" className={linkClass}>All Profiles</NavLink></li>
           <li><NavLink to="/create" className={linkClass}>Add Profile</NavLink></li>
+          <li><NavLink to="/login" className={linkClass}>Login</NavLink></li>
+          <li><NavLink to="/account" className={linkClass}>Account</NavLink></li>
         </ul>
 
         <button
