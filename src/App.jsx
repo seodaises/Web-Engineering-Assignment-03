@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import CreateItem from './pages/CreateItem'
 import ViewAll from './pages/ViewAll'
@@ -16,17 +17,39 @@ function App() {
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-8">
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/create" element={<CreateItem />} />
           <Route path="/all" element={<ViewAll />} />
           <Route path="/view/:id" element={<ViewSingle />} />
-          <Route path="/edit/:id" element={<EditItem />} />
-
-          {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/account" element={<Account />} />
+
+          {/* Protected routes - require login */}
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <CreateItem />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditItem />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </div>
