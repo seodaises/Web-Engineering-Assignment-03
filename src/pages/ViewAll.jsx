@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { useAuth } from '../hooks/useAuth'
 
 const ViewAll = () => {
+  const { user } = useAuth()
   const [profiles, setProfiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -128,6 +130,11 @@ const ViewAll = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   📍 {profile.preferredArea}
                 </p>
+                {profile.creatorName && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                  Posted by {profile.creatorName}
+                </p>
+                )}
                 <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
                   {formatBudget(profile.budget)}
                   <span className="text-xs font-normal text-gray-500 dark:text-gray-400"> /month</span>
@@ -137,19 +144,21 @@ const ViewAll = () => {
                 </p>
 
                 <div className="flex gap-2 pt-3 mt-2 border-t border-gray-200 dark:border-gray-700">
-                  <Link
-                    to={`/view/${profile.id}`}
-                    className="flex-1 text-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-                  >
-                    View Details
-                  </Link>
-                  <Link
-                    to={`/edit/${profile.id}`}
-                    className="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition"
-                  >
-                    Edit
-                  </Link>
-                </div>
+  <Link
+    to={`/view/${profile.id}`}
+    className="flex-1 text-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+  >
+    View Details
+  </Link>
+  {user && profile.createdBy === user.uid && (
+    <Link
+      to={`/edit/${profile.id}`}
+      className="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition"
+    >
+      Edit
+    </Link>
+  )}
+</div>
               </div>
             </article>
           ))}

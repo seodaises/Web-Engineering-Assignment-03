@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { useAuth } from '../hooks/useAuth'
 
 const CreateItem = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const CreateItem = () => {
     imageUrl: ''
   })
 
+  const { user } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -38,8 +40,11 @@ const CreateItem = () => {
         ...formData,
         age: Number(formData.age),
         budget: Number(formData.budget),
+        createdBy: user.uid,
+        creatorName: user.displayName || user.email.split('@')[0],
+        creatorEmail: user.email,
         createdAt: serverTimestamp()
-      })
+    })
 
       navigate('/all')
     } catch (err) {
