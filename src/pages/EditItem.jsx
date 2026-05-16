@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { useAuth } from '../hooks/useAuth'
 
 const EditItem = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const [formData, setFormData] = useState({
     name: '',
@@ -24,6 +26,7 @@ const EditItem = () => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
+  const [unauthorized, setUnauthorized] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,22 +35,31 @@ const EditItem = () => {
         const docSnap = await getDoc(docRef)
 
         if (docSnap.exists()) {
-          const data = docSnap.data()
-          setFormData({
-            name: data.name || '',
-            age: data.age || '',
-            gender: data.gender || 'Female',
-            university: data.university || '',
-            budget: data.budget || '',
-            preferredArea: data.preferredArea || '',
-            lifestyle: data.lifestyle || 'Balanced',
-            bio: data.bio || '',
-            contactEmail: data.contactEmail || '',
-            imageUrl: data.imageUrl || ''
-          })
-        } else {
-          setNotFound(true)
-        }
+  const data = docSnap.data()
+
+  // Check if current user owns this profile
+  if (data.createdBy !== user.uid) {
+    setUnauthorized(true)
+    setLoading(false)
+    return
+  }
+
+  setFormData({
+    name: data.name || '',
+    age: data.age || '',
+    gender: data.gender || 'Female',
+    university: data.university || '',
+    budget: data.budget || '',
+    preferredArea: data.preferredArea || '',
+    lifestyle: data.lifestyle || 'Balanced',
+    bio: data.bio || '',
+    contactEmail: data.contactEmail || '',
+    imageUrl: data.imageUrl || ''
+  })
+} else {
+  setNotFound(true)
+}
+
       } catch (err) {
         console.error('Error fetching profile:', err)
         setError('Failed to load profile.')
@@ -108,6 +120,22 @@ const EditItem = () => {
       </div>
     )
   }
+  if (unauthorized) {
+  return (
+    <div>
+      <div className="mb-4 p-4 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800">
+        <p className="font-semibold mb-1">Not authorized</p>
+        <p>You can only edit profiles you created.</p>
+      </div>
+      <Link
+        to="/all"
+        className="inline-block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition"
+      >
+        ← Back to All Profiles
+      </Link>
+    </div>
+  )
+}
 
   return (
     <div>

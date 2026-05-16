@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, deleteDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { useAuth } from '../hooks/useAuth'
 
 const ViewSingle = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -86,7 +88,8 @@ const ViewSingle = () => {
       </div>
     )
   }
-
+// Check if current user owns this profile
+const isOwner = user && profile.createdBy === user.uid
   return (
     <div>
       <Link
@@ -171,28 +174,44 @@ const ViewSingle = () => {
             </div>
           </div>
 
-          {/* Meta */}
-          <div className="flex flex-wrap justify-between gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-            <span>Listed on {formatDate(profile.createdAt)}</span>
-            <span className="font-mono">ID: {profile.id}</span>
-          </div>
+          {/* Creator + Meta */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+           {profile.creatorName && (
+           <div className="flex items-center gap-2 mb-2">
+      <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+        {profile.creatorName.charAt(0).toUpperCase()}
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300">
+        Posted by <strong>{profile.creatorName}</strong>
+        {isOwner && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(You)</span>}
+      </p>
+    </div>
+  )}
+  <div className="flex flex-wrap justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+    <span>Listed on {formatDate(profile.createdAt)}</span>
+    <span className="font-mono">ID: {profile.id}</span>
+  </div>
+</div>
 
           {/* Action buttons */}
-          <div className="flex gap-3 pt-5 mt-5 border-t border-gray-200 dark:border-gray-700">
-            <Link
-              to={`/edit/${profile.id}`}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-            >
-              Edit Profile
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {deleting ? 'Deleting...' : 'Delete Profile'}
-            </button>
-          </div>
+          {/* Action buttons - only visible to owner */}
+{isOwner && (
+  <div className="flex gap-3 pt-5 mt-5 border-t border-gray-200 dark:border-gray-700">
+    <Link
+      to={`/edit/${profile.id}`}
+      className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+    >
+      Edit Profile
+    </Link>
+    <button
+      onClick={handleDelete}
+      disabled={deleting}
+      className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {deleting ? 'Deleting...' : 'Delete Profile'}
+    </button>
+  </div>
+)}
         </div>
       </article>
     </div>
