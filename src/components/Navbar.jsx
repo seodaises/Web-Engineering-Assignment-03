@@ -1,11 +1,13 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { useUnreadCount } from '../hooks/useUnreadCount'
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, logout } = useAuth()
+  const unreadCount = useUnreadCount()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -45,7 +47,22 @@ const Navbar = () => {
           <li><NavLink to="/" end className={linkClass}>Home</NavLink></li>
           <li><NavLink to="/all" className={linkClass}>All Profiles</NavLink></li>
           {user && (
-            <li><NavLink to="/create" className={linkClass}>Add Profile</NavLink></li>
+            <>
+              <li><NavLink to="/create" className={linkClass}>Add Profile</NavLink></li>
+              <li>
+                <NavLink to="/chats" className={linkClass}>
+                  <span className="inline-flex items-center gap-1.5">
+                    My Chats
+                    {unreadCount > 0 && (
+                      <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center text-[10px] font-semibold text-white bg-red-500 rounded-full">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </span>
+                </NavLink>
+              </li>
+              <li><NavLink to="/dashboard" className={linkClass}>My Dashboard</NavLink></li>
+            </>
           )}
         </ul>
 

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import { Link, useNavigate } from 'react-router-dom'
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from '../hooks/useAuth'
+import { ensureChatExists } from '../firebase/chats'
 
 const ViewAll = () => {
-  const { user } = useAuth()
+  const { user, userDoc, isAdmin } = useAuth()
+  const navigate = useNavigate()
   const [profiles, setProfiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -33,6 +35,48 @@ const ViewAll = () => {
 
     return () => unsubscribe()
   }, [])
+
+  // Start a chat with the profile creator
+  const handleChatClick = async (profile) => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    try {
+      const chatId = await ensureChatExists(
+        {
+          uid: user.uid,
+          displayName: userDoc?.displayName || user.displayName || user.email,
+          photoURL: user.photoURL
+        },
+        {
+          uid: profile.createdBy,
+          displayName: profile.creatorName || 'User',
+          photoURL: null
+        }
+      )
+      navigate(`/chats/${chatId}`)
+    } catch (err) {
+      console.error('Failed to start chat:', err)
+      setError('Could not start chat. Please try again.')
+    }
+  }
+
+  // Admin-only: delete a profile after confirmation
+  const handleAdminDelete = async (profileId, profileName) => {
+    const confirmed = window.confirm(
+      `Delete "${profileName}"'s profile? This cannot be undone.`
+    )
+    if (!confirmed) return
+
+    try {
+      await deleteDoc(doc(db, 'profiles', profileId))
+      // The onSnapshot listener will auto-update the UI, no manual refresh needed
+    } catch (err) {
+      console.error('Error deleting profile:', err)
+      setError('Failed to delete profile. Please try again.')
+    }
+  }
 
   const formatBudget = (amount) => `PKR ${Number(amount).toLocaleString('en-PK')}`
 
@@ -150,6 +194,17 @@ const ViewAll = () => {
   >
     View Details
   </Link>
+  {/* Chat icon button - shown to logged-in non-owners */}
+  {user && profile.createdBy && profile.createdBy !== user.uid && (
+    <button
+      onClick={() => handleChatClick(profile)}
+      className="px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition"
+      title={`Chat with ${profile.creatorName || 'creator'}`}
+      aria-label="Start chat"
+    >
+      💬
+    </button>
+  )}
   {user && profile.createdBy === user.uid && (
     <Link
       to={`/edit/${profile.id}`}
@@ -157,6 +212,16 @@ const ViewAll = () => {
     >
       Edit
     </Link>
+  )}
+  {/* Admin-only: delete button shown on profiles the admin didn't create */}
+  {isAdmin && profile.createdBy !== user.uid && (
+    <button
+      onClick={() => handleAdminDelete(profile.id, profile.name)}
+      className="flex-1 px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition"
+      title="Admin: delete this profile"
+    >
+      Delete
+    </button>
   )}
 </div>
               </div>

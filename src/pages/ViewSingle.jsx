@@ -3,11 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { doc, getDoc, deleteDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from '../hooks/useAuth'
+import { ensureChatExists } from '../firebase/chats'
 
 const ViewSingle = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, userDoc, isAdmin } = useAuth()
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -50,6 +51,29 @@ const ViewSingle = () => {
       console.error('Error deleting profile:', err)
       setError('Failed to delete profile.')
       setDeleting(false)
+    }
+  }
+
+  // Start a chat with the profile creator
+  const handleStartChat = async () => {
+    if (!user || !profile?.createdBy) return
+    try {
+      const chatId = await ensureChatExists(
+        {
+          uid: user.uid,
+          displayName: userDoc?.displayName || user.displayName || user.email,
+          photoURL: user.photoURL
+        },
+        {
+          uid: profile.createdBy,
+          displayName: profile.creatorName || 'User',
+          photoURL: null  // we don't store creator photo on profile docs
+        }
+      )
+      navigate(`/chats/${chatId}`)
+    } catch (err) {
+      console.error('Failed to start chat:', err)
+      setError('Could not start chat. Please try again.')
     }
   }
 
@@ -165,13 +189,28 @@ const isOwner = user && profile.createdBy === user.uid
           {/* Contact */}
           <div className="mb-6">
             <h2 className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 font-semibold mb-2">Contact</h2>
-            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
-              
-               <a href={`mailto:${profile.contactEmail}`}
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex flex-wrap items-center justify-between gap-3">
+              <a href={`mailto:${profile.contactEmail}`}
                 className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
                 ✉️ {profile.contactEmail}
               </a>
+              {/* Chat button - only for logged-in users who are NOT the owner */}
+              {user && !isOwner && profile.createdBy && (
+                <button
+                  onClick={handleStartChat}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition inline-flex items-center gap-2"
+                >
+                  💬 Chat with {profile.creatorName || 'creator'}
+                </button>
+              )}
             </div>
+            {!user && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+                  Sign in
+                </Link>{' '}to chat directly with the creator.
+              </p>
+            )}
           </div>
 
           {/* Creator + Meta */}
@@ -203,6 +242,25 @@ const isOwner = user && profile.createdBy === user.uid
     >
       Edit Profile
     </Link>
+    <button
+      onClick={handleDelete}
+      disabled={deleting}
+      className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {deleting ? 'Deleting...' : 'Delete Profile'}
+    </button>
+  </div>
+)}
+
+{/* Admin-only: delete button on others' profiles */}
+{isAdmin && !isOwner && (
+  <div className="flex items-center gap-3 pt-5 mt-5 border-t border-gray-200 dark:border-gray-700">
+    <span className="px-2 py-0.5 text-xs font-semibold text-white bg-red-600 rounded-full">
+      ADMIN
+    </span>
+    <span className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+      You can moderate this profile.
+    </span>
     <button
       onClick={handleDelete}
       disabled={deleting}

@@ -1,16 +1,23 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-
-const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth()
+const ProtectedRoute = ({ children, requireRole = null }) => {
+  const { user, userDoc } = useAuth()
   const location = useLocation()
 
+  // Layer 1: must be logged in
   if (!user) {
-    // Not logged in - redirect to login, remembering where they were going
     return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 
-  // Logged in - show the protected content
+  // Layer 2: if a specific role is required, check it
+  if (requireRole) {
+    if (!userDoc || userDoc.role !== requireRole) {
+      // Wrong role - silently redirect to their own dashboard
+      return <Navigate to="/dashboard" replace />
+    }
+  }
+
+  // All checks passed
   return children
 }
 
