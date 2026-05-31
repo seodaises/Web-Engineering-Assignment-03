@@ -3,14 +3,7 @@
 A role-based secure web application built with **React + Firebase**, featuring authentication, role-based protected routing, a real-time chat system, and admin/user dashboards with analytics.
 
 > **University of Lahore — BSCS — Spring 2026 — Web Engineering**
-> Submitted by: Khawla (SAP ID: 70145895)
-
----
-
-## Live Demo
-
- **Live URL:** _[paste your Firebase Hosting URL here after deployment]_
- **GitHub Repo:** _[paste your GitHub repo URL here]_
+> Submitted by: Khawla (SAP ID: 70145895) 
 
 ---
 
