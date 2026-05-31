@@ -7,23 +7,23 @@ A role-based secure web application built with **React + Firebase**, featuring a
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
-🌐 **Live URL:** _[paste your Firebase Hosting URL here after deployment]_
-📦 **GitHub Repo:** _[paste your GitHub repo URL here]_
+ **Live URL:** _[paste your Firebase Hosting URL here after deployment]_
+ **GitHub Repo:** _[paste your GitHub repo URL here]_
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🔐 Firebase Authentication
+###  Firebase Authentication
 - Email & Password Sign Up / Sign In
 - Google Sign-In (one-click OAuth)
 - Sign Out
 - Password Reset via email
 - Delete Account (removes both Firestore doc and Auth account)
 
-### 👥 User Management
+###  User Management
 - User documents stored in Firestore `users` collection on sign-up
 - Default role: `user`. Admins are promoted manually (or via Admin Dashboard)
 - Real-time sync, if your role changes, the UI updates instantly without re-login
