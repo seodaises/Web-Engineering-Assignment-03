@@ -3,12 +3,12 @@ import { getFirestore } from 'firebase/firestore'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCQB6wl39JOQRnTcS2sBaQ9ReOLHEw8Rec",
-  authDomain: "roomsync-b10a6.firebaseapp.com",
-  projectId: "roomsync-b10a6",
-  storageBucket: "roomsync-b10a6.firebasestorage.app",
-  messagingSenderId: "772591208003",
-  appId: "1:772591208003:web:bd2e1abb8f54aec03676f6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig)
